@@ -1,4 +1,10 @@
+#链接linux内核源码(链接方式vscode会有问题，还是拷贝吧)
+cd linux_driver_study
+ln -s <linux_kernel_source_link> <linux_kernel_source_absPath>
 
+#包含linux内核头文件
+编辑.vscode/c_cpp_properties.json
+configurations下的includePath加入"${workspaceFolder}/<linux_kernel_source_link>/include"
 
 #cross compile
 source ~/100ask_stm32mp157_pro-sdk/cross_env.sh

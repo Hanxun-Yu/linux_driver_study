@@ -1,0 +1,20 @@
+
+
+#cross compile
+source ~/100ask_stm32mp157_pro-sdk/cross_env.sh
+
+eg:
+arm-buildroot-linux-gnueabihf-gcc helloworld.c -o helloworld
+
+#board mount ubuntu
+mount -t nfs -o nolock,vers=3 10.1.2.129:/home/book/nfs_rootfs /mnt
+
+#stm32mp157 关闭gui
+systemctl stop myir
+
+
+#开启gdb调试
+1.板子上执行 ulimit -c unlimited
+2.gcc编译时加上参数 -g
+3.报错时会产生core文件
+    执行gdb <program> <corefile>

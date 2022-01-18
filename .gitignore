@@ -1,0 +1,16 @@
+*
+!*.c
+!*.h
+!*.cpp
+!*.txt
+!*/
+!.gitignore
+!*.md
+!Makefile
+!Makefile.build
+!clean
+!HZK16
+!*.ttc
+!*.png
+!*.pdf
+.vscode

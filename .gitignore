@@ -16,3 +16,9 @@
 .vscode
 /linux*
 /Linux*
+.idea
+*.mod*
+*.o*
+*.symvers
+*.order
+*.ko*

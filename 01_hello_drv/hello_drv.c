@@ -101,5 +101,3 @@ static void __exit hello_exit(void) {
 module_init(hello_init); //注册
 module_exit(hello_exit); //注册
 MODULE_LICENSE("GPL");
-
-

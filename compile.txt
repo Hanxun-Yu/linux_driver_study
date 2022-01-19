@@ -7,6 +7,12 @@ ln -s <linux_kernel_source_link> <linux_kernel_source_absPath>
 configurations下的includePath加入"${workspaceFolder}/<linux_kernel_source_link>/include"
 
 #cross compile
+export ARCH=arm
+export CROSS_COMPILE=arm-buildroot-linux-gnueabihf-
+export PATH=$PATH:/home/${USER}/100ask_stm32mp157_pro-sdk/ToolChain/\
+arm-buildroot-linux-gnueabihf_sdk-buildroot/bin
+
+#可以把上面写入脚本
 source ~/100ask_stm32mp157_pro-sdk/cross_env.sh
 
 eg:

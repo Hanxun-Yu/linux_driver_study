@@ -14,14 +14,15 @@
 #include <linux/seq_file.h>
 #include <linux/stat.h>
 #include <linux/tty.h>
+#include "led_opr.h"
 
-#define LED_NUM 4
 
 /* 这个驱动主要实现了存放上层app传入的字符串，提供读写*/
 
 // 1.确定主设备号
 static int major = 0;
 static struct class* led_class;
+struct led_operations *p_led_opr;
 
 #define MIN(a, b) (a < b ? a : b)
 
@@ -33,15 +34,21 @@ static ssize_t led_drv_read(struct file* f,
     printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
     return 0;
 }
+
+/* app 会这样调用 
+	write(fd, &val, 1); */
 static ssize_t led_drv_write(struct file* f,
-                             const char __user* buf,
+                             const char __user* val,
                              size_t size,
                              loff_t* offset) {
 	int err;
 	char status;//接收用户输入
-	err = copy_from_user(&status, buf, 1);
-	//根据open时指定的次设备号与status，来控制led
 
+	err = copy_from_user(&status, val, 1);
+	//根据open时指定的次设备号与status，来控制led
+	struct inode *node = file_inode(f);
+	int minor = iminor(node);
+	p_led_opr->ctl(minor,status);
 
 
     printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
@@ -50,6 +57,8 @@ static ssize_t led_drv_write(struct file* f,
 static int led_drv_open(struct inode* node, struct file* f) {
     printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
 	//根据次设备号初始化led
+	int minor = iminor(node);
+	p_led_opr->init(minor);
     return 0;
 }
 static int led_drv_release(struct inode* node, struct file* f) {
@@ -80,10 +89,14 @@ static int __init led_init(void) {
         return -1;
     }
 
-    for (int i = 0; i < LED_NUM; i++) {
+    p_led_opr = get_board_led_opr();
+
+	int i = 0;
+    for (i = 0; i < p_led_opr->num; i++) {
         device_create(led_class, NULL, MKDEV(major, i), NULL, "xunxun_led%d",
                       i);  //创建设备节点 /dev/xunxun_led0
     }
+
 
     return 0;
 }
@@ -92,7 +105,10 @@ static int __init led_init(void) {
 static void __exit led_exit(void) {
     printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
 
-	for (int i = 0; i < LED_NUM; i++) {
+    p_led_opr->release(0);
+
+	int i;
+	for (i = 0; i < p_led_opr->num; i++) {
 		 device_destroy(led_class, MKDEV(major, i));
     }
    

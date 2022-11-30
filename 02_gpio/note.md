@@ -17,6 +17,6 @@
    ```
 2. set-and-clear 方式  
    set_reg, clr_reg, data_reg 三个寄存器对应的是同一个物理寄存器  
-   置1第n个bit：`set_reg = (1<<n);`  
-    置0第n个bit：`clr_reg = (1<<n);`
+   置1  第n个bit：`set_reg = (1<<n);`  
+   置0  第n个bit：`clr_reg = (1<<n);`
 

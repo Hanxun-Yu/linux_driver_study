@@ -111,6 +111,7 @@ static void __exit led_exit(void) {
 	for (i = 0; i < p_led_opr->num; i++) {
 		 device_destroy(led_class, MKDEV(major, i));
     }
+    class_destroy(led_class);
    
     unregister_chrdev(major, "led");
     return 0;

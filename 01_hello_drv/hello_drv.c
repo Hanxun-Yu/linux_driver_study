@@ -90,6 +90,7 @@ static void __exit hello_exit(void) {
 	printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
 
 	device_destroy(hello_class, MKDEV(major, 0));
+    class_destroy(hello_class);
 	unregister_chrdev(major, "hello");
 	return 0;
 }

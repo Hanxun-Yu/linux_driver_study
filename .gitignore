@@ -22,3 +22,5 @@
 *.symvers
 *.order
 *.ko*
+out
+cmake-build-debug

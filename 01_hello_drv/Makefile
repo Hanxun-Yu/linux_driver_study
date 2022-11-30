@@ -1,6 +1,6 @@
-KERN_DIR = /home/xunxun/100ask_stm32mp157_pro-sdk/Linux-5.4
-
-CFLAGS += -I ../Linux-5.4/include # 指定头文件搜索路径
+#KERN_DIR = /home/xunxun/100ask_stm32mp157_pro-sdk/Linux-5.4
+KERN_DIR = ../Linux-5.4_link
+CFLAGS += -I ../Linux-5.4_link/include # 指定头文件搜索路径
 
 all:
 	make -C $(KERN_DIR) M=`pwd` modules

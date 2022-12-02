@@ -92,7 +92,6 @@ static void __exit hello_exit(void) {
 	device_destroy(hello_class, MKDEV(major, 0));
     class_destroy(hello_class);
 	unregister_chrdev(major, "hello");
-	return 0;
 }
 
 

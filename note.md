@@ -51,8 +51,11 @@ mount -t nfs -o nolock,vers=3 10.1.1.114:/home/yuhanxun/nfs_share /mnt/nfs_share
 ```
 
 
-#### stm32mp157 关闭gui
+#### stm32mp157 
+    #关闭gui
     systemctl stop myir
+    #关闭心跳灯 led2
+    echo none > /sys/class/leds/heartbeat/trigger
 
 
 #### 开启gdb调试

@@ -14,7 +14,8 @@
 #include <linux/seq_file.h>
 #include <linux/stat.h>
 #include <linux/tty.h>
-#include "led_opr.h"
+#include "chip_gpio_opr.h"
+#include "led_resource.h"
 
 
 /* 这个驱动主要实现了存放上层app传入的字符串，提供读写*/
@@ -22,7 +23,9 @@
 // 1.确定主设备号
 static int major = 0;
 static struct class *led_class;
-struct led_operations *p_led_opr;
+static struct gpio_api *p_gpio_api;
+static led_resource *p_led_resource;
+
 
 #define MIN(a, b) (a < b ? a : b)
 
@@ -46,14 +49,13 @@ static ssize_t led_drv_write(struct file *f,
     int err;
     char status;//接收用户输入
     struct inode *node;
-    int minor;
+//    int minor;
 
     err = copy_from_user(&status, val, 1);
     //根据open时指定的次设备号与status，来控制led
-    // 次设备号就是  /dev/xunxun_led0 中的 0
     node = file_inode(f);
-    minor = iminor(node);
-    p_led_opr->ctl(minor, status);
+//    minor = iminor(node);
+    p_gpio_api->gpio_ctrl(p_led_resource->group_pin, status);
 
 
     printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
@@ -61,11 +63,11 @@ static ssize_t led_drv_write(struct file *f,
 }
 
 static int led_drv_open(struct inode *node, struct file *f) {
-    int minor;
+//    int minor;
     printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
     //根据次设备号初始化led
-    minor = iminor(node);
-    p_led_opr->init(minor);
+//    minor = iminor(node); //这里其实还需要把次设备号与led资源做对应
+    p_gpio_api->gpio_init(p_led_resource->group_pin);
     return 0;
 }
 
@@ -88,6 +90,9 @@ static int __init led_init(void) {
     int err;
     printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
 
+    p_gpio_api = get_gpio_api();
+    p_led_resource = get_led_resource();
+
     major = register_chrdev(0, "xunxun_led", &led_drv);
 
     led_class = class_create(THIS_MODULE, "xunxun_led_class");
@@ -97,13 +102,8 @@ static int __init led_init(void) {
         unregister_chrdev(major, "led");
         return -1;
     }
-    p_led_opr = get_board_led_opr();
 
-    int i = 0;
-    for (i = 0; i < p_led_opr->num; i++) {
-        device_create(led_class, NULL, MKDEV(major, i), NULL, "xunxun_led%d",
-                      i);  //创建设备节点 /dev/xunxun_led0
-    }
+    device_create(led_class, NULL, MKDEV(major, 0), NULL, "xunxun_led0");  //创建设备节点 /dev/xunxun_led0
 
 
     return 0;
@@ -113,13 +113,8 @@ static int __init led_init(void) {
 static void __exit led_exit(void) {
     printk(KERN_DEBUG "%s %s line %d\n", __FILE__, __FUNCTION__, __LINE__);
 
-    p_led_opr->release(0);
-    int i;
-    for (i = 0; i < p_led_opr->num; i++) {
-        device_destroy(led_class, MKDEV(major, i));
-    }
+    device_destroy(led_class, MKDEV(major, 0));
     class_destroy(led_class);
-
 
     unregister_chrdev(major, "led");
 }

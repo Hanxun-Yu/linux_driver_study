@@ -1,0 +1,15 @@
+
+#define GROUP_PIN(g, p) ((g<<16)|(p))
+
+/ {
+    //一个节点表示1个platform_device, 下面2个节点表示2个
+    xunxun_led@0 {
+    compatible = "xunxun,led_drv";
+    pin = <GROUP_PIN(3, 1)>;
+    };
+
+    xunxun_led@1 {
+    compatible = "xunxun,led_drv";
+    pin = <GROUP_PIN(5, 8)>;
+    };
+};

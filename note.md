@@ -22,8 +22,6 @@
 #### board 配置网络（确认网口位置：开关在左下角的时，左eth1，右eth0）
     静态ip
     ifconfig eth1 10.1.1.251 netmask 255.255.255.0
-    ifconfig eth1 down
-    ifconfig eth1 up
 
     #dhcp获取ip
     udhcpc -i eth1
@@ -48,6 +46,8 @@
 加入
 mkdir /mnt/nfs_share
 ifconfig eth1 10.1.1.251 netmask 255.255.255.0
+ifconfig eth1 down
+ifconfig eth1 up
 sleep 1
 mount -t nfs -o nolock,vers=3 10.1.1.114:/home/yuhanxun/nfs_share /mnt/nfs_share
 ```

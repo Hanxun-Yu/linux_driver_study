@@ -22,3 +22,4 @@ include_directories(
 # 在每个子目录里有自己的CMakeLists，作为每个子项目
 add_subdirectory(05_led_drv_bus)
 add_subdirectory(06_led_drv_device_tree)
+add_subdirectory(07_button_drv)

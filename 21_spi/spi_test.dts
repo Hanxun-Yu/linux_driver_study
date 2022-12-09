@@ -1,0 +1,28 @@
+
+//使用扩展板的SPI_A引脚
+//编辑arch/arm/boot/dts/stm32mp157c-100ask-512d-lcd-v1.dts
+//补充成下面这样
+
+//cs-gpios 里有多个用于片选的gpio引脚，与子节点中reg=<>,的序号对应
+
+&spi5 {
+        pinctrl-names = "default", "sleep";
+        pinctrl-0 = <&spi5_pins_a>;
+        pinctrl-1 = <&spi5_sleep_pins_a>;
+        status = "okay";
+        cs-gpios = <&gpioh 5 GPIO_ACTIVE_LOW>, <&gpioz 4 GPIO_ACTIVE_LOW>;
+        spidev: icm20608@0{
+                compatible = "invensense,icm20608";
+                interrupts = <0 IRQ_TYPE_EDGE_FALLING>;
+                interrupt-parent = <&gpioz>;
+                spi-max-frequency = <8000000>;
+                reg = <0>; //表示使用cs-gpios内第0个
+        };
+
+	W25QXX: W25QXX@1 {
+		compatible = "spidev";
+		spi-max-frequency = <104000000>; //这里用的公司的一个flash模块w25q128，频率为104MHZ
+                reg = <1>;//表示使用cs-gpios内第1个
+	};
+
+};

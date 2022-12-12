@@ -6,6 +6,9 @@
     编辑.vscode/c_cpp_properties.json  
     configurations下的includePath加入"${workspaceFolder}/<linux_kernel_source_link>/include"
 
+#### clion 
+    若使用clion编辑器，导入该项目后，右键最外层CmakeLists.txt load即可，已包含子项目
+
 #### 交叉编译 环境变量
     export ARCH=arm
     export CROSS_COMPILE=arm-buildroot-linux-gnueabihf-

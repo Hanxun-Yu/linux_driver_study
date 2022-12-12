@@ -23,3 +23,5 @@ include_directories(
 add_subdirectory(05_led_drv_bus)
 add_subdirectory(06_led_drv_device_tree)
 add_subdirectory(07_button_drv)
+add_subdirectory(08_pinctrl_gpio_drv)
+add_subdirectory(21_spi)

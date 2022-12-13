@@ -18,7 +18,7 @@ uint32_t HAL_GetTick(void);
 
 
 HAL_StatusTypeDef HAL_SPI_Init(int fd_spi);
-HAL_StatusTypeDef HAL_SPI_Transmit(int fd_spi, uint8_t *pData, uint16_t Size);
-HAL_StatusTypeDef HAL_SPI_Receive(int fd_spi, uint8_t *pData, uint16_t Size);
-HAL_StatusTypeDef HAL_SPI_Transmit_Receive(int fd_spi, uint8_t *wData, uint8_t *rData, uint16_t Size);
+//HAL_StatusTypeDef HAL_SPI_Transmit(int fd_spi, uint8_t *pData, uint16_t Size);
+//HAL_StatusTypeDef HAL_SPI_Receive(int fd_spi, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_SPI_Transmit_Receive(int fd_spi, uint8_t *wData, u16 wDataSize, uint8_t *rData, u16 rDataSize);
 

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/ioctl.h>
 
 //#include <sys/ioctl.h>
 //#include <sys/types.h>
@@ -82,20 +83,47 @@ int main(int argc, char **argv) {
         printf("HAL_SPI_Init error \n");
         return -1;
     }
-
-
     u8 ID[4] = {0};
+
+//    u8 tx_buf[10] = {0};
+//    u8 rx_buf[10] = {0};
+//    struct spi_ioc_transfer tr;
+//    tx_buf[0] = 0x90;
+//    tx_buf[1] = 0;
+//    tx_buf[2] = 0;
+//    tx_buf[3] = 0;
+//    tr.tx_buf = (unsigned long) tx_buf;
+//    tr.rx_buf = (unsigned long) rx_buf;
+//    tr.len = sizeof(tx_buf);
+//    tr.delay_usecs = 0;
+//    tr.speed_hz = 1*1000*1000;
+//    tr.bits_per_word = 8;
     BSP_W25Qx_Init(fd);
     BSP_W25Qx_Read_ID(fd, ID);
+//
+//    int status = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
+//    printf("HAL_SPI_Transmit ioctl status:%d\n", status);
+
+//    int i = 0;
+//    for (i = 0; i < 10; i++) {
+//        printf("0x%02X ", rx_buf[i]);
+//    }
+//
+//    for (i = 0; i < 10; i++) {
+//        printf("0x%02X ", tx_buf[i]);
+//    }
+//
+//    u32 ret = status >= 0 ? HAL_OK : HAL_ERROR;
+//    printf("HAL_SPI_Transmit ret:%d\n", ret);
+
     printf("W25Qxxx ID is : ");
     int i = 0;
     for (i = 0; i < 2; i++) {
         printf("0x%02X ", ID[i]);
     }
-
     printf("\n");
-
-
+//
+//
     if (isRead) {
         printf("Read addr:0x%04x\n", addr_u32);
         //BSP_W25Qx_Read(int fd_spi, uint8_t *pData, uint32_t ReadAddr, uint32_t Size)

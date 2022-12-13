@@ -42,7 +42,7 @@ uint8_t BSP_W25Qx_Init(int fd_spi) {
   */
 static uint8_t BSP_W25Qx_Reset(int fd_spi) {
     uint8_t cmd[2] = {RESET_ENABLE_CMD, RESET_MEMORY_CMD};
-    u8 ret = HAL_SPI_Transmit(fd_spi, cmd, 2);
+    u8 ret = HAL_SPI_Transmit_Receive(fd_spi, cmd, 2, NULL, 0);
     /* Send the reset command */
     printf("BSP_W25Qx_Reset ret:%u\n", ret);
 
@@ -54,18 +54,19 @@ static uint8_t BSP_W25Qx_Reset(int fd_spi) {
   * @retval W25Q128FV memory status
   */
 static uint8_t BSP_W25Qx_GetStatus(int fd_spi) {
+    printf("BSP_W25Qx_GetStatus start!\n");
+
     uint8_t cmd[] = {READ_STATUS_REG1_CMD};
+    uint8_t receiveData[2] = {0};
+
     uint8_t status = 0;
 
-    /* Send the read status command */
-    HAL_SPI_Transmit(fd_spi, cmd, 1);
-    /* Reception of the data */
-    HAL_SPI_Receive(fd_spi, &status, 1);
+    HAL_SPI_Transmit_Receive(fd_spi, cmd, 1, receiveData, 2);
 
 
     u32 ret = 0;
     /* Check the value of the register */
-    if ((status & W25Q128FV_FSR_BUSY) != 0) {
+    if ((receiveData[1] & W25Q128FV_FSR_BUSY) != 0) {
         ret = W25Qx_BUSY;
     } else {
         ret = W25Qx_OK;
@@ -79,11 +80,12 @@ static uint8_t BSP_W25Qx_GetStatus(int fd_spi) {
   * @retval None
   */
 uint8_t BSP_W25Qx_WriteEnable(int fd_spi) {
+    printf("BSP_W25Qx_WriteEnable\n");
     uint8_t cmd[] = {WRITE_ENABLE_CMD};
     uint32_t tickstart = HAL_GetTick();
 
     /* Send the read ID command */
-    HAL_SPI_Transmit(fd_spi, cmd, 1);
+    HAL_SPI_Transmit_Receive(fd_spi, cmd, 1, NULL, 0);
 
     /* Wait the end of Flash writing */
     while (BSP_W25Qx_GetStatus(fd_spi) == W25Qx_BUSY);
@@ -110,16 +112,16 @@ void BSP_W25Qx_Read_ID(int fd_spi, uint8_t *ID) {
         #define READ_JEDEC_ID_CMD                    0x9F
      */
     uint8_t cmd[4] = {READ_ID_CMD, 0x00, 0x00, 0x00};
+    uint8_t receiveData[8] = {0};
 
     /* Send the read ID command */
-    HAL_SPI_Transmit(fd_spi, cmd, 4);
+//    HAL_SPI_Transmit(fd_spi, cmd, 4);
     /* Reception of the data */
-    usleep(1000000);
-    /* Reception of the data */
-    HAL_SPI_Receive(fd_spi, ID, 2);
+//    HAL_SPI_Receive(fd_spi, ID, 2);
 
-//    HAL_SPI_Transmit_Receive(fd_spi, cmd, ID, 4);
-
+    HAL_SPI_Transmit_Receive(fd_spi, cmd, 4, receiveData, 8);
+    ID[0] = receiveData[5];
+    ID[1] = receiveData[6];
 }
 
 /**
@@ -133,18 +135,21 @@ uint8_t BSP_W25Qx_Read(int fd_spi, uint8_t *pData, uint32_t ReadAddr, uint32_t S
     uint8_t cmd[4];
 
     /* Configure the command */
-//    cmd[0] = READ_CMD;
-    cmd[0] = FAST_READ_CMD;
+    cmd[0] = READ_CMD;
     cmd[1] = (uint8_t) (ReadAddr >> 16);
     cmd[2] = (uint8_t) (ReadAddr >> 8);
     cmd[3] = (uint8_t) (ReadAddr);
 
-    /* Send the read ID command */
-    HAL_SPI_Transmit(fd_spi, cmd, 4);
+    u8 receiveData[10] = {0};
+
     /* Reception of the data */
-    usleep(1000000);
-    if (HAL_SPI_Receive(fd_spi, pData, Size) != HAL_OK) {
+    if (HAL_SPI_Transmit_Receive(fd_spi, cmd, sizeof cmd, receiveData, sizeof receiveData) != HAL_OK) {
         return W25Qx_ERROR;
+    }
+
+    int i;
+    for (i = 0; i < Size; i++) {
+        pData[i] = receiveData[i + 4];
     }
     return W25Qx_OK;
 }
@@ -157,7 +162,7 @@ uint8_t BSP_W25Qx_Read(int fd_spi, uint8_t *pData, uint32_t ReadAddr, uint32_t S
   * @retval QSPI memory status
   */
 uint8_t BSP_W25Qx_Write(int fd_spi, uint8_t *pData, uint32_t WriteAddr, uint32_t Size) {
-    uint8_t cmd[4];
+    uint8_t cmd[100];
     uint32_t end_addr, current_size, current_addr;
     uint32_t tickstart = HAL_GetTick();
 
@@ -186,18 +191,19 @@ uint8_t BSP_W25Qx_Write(int fd_spi, uint8_t *pData, uint32_t WriteAddr, uint32_t
         cmd[2] = (uint8_t) (current_addr >> 8);
         cmd[3] = (uint8_t) (current_addr);
 
+        int i;
+        for(i=0;i<Size;i++) {
+            cmd[i+4] = pData[i];
+        }
+
         /* Enable write operations */
         BSP_W25Qx_WriteEnable(fd_spi);
 
         /* Send the command */
-        if (HAL_SPI_Transmit(fd_spi, cmd, 4) != HAL_OK) {
+        if (HAL_SPI_Transmit_Receive(fd_spi, cmd, 4+Size, NULL, 0) != HAL_OK) {
             return W25Qx_ERROR;
         }
 
-        /* Transmission of the data */
-        if (HAL_SPI_Transmit(fd_spi, pData, current_size) != HAL_OK) {
-            return W25Qx_ERROR;
-        }
         /* Wait the end of Flash writing */
         while (BSP_W25Qx_GetStatus(fd_spi) == W25Qx_BUSY);
         {
@@ -206,8 +212,6 @@ uint8_t BSP_W25Qx_Write(int fd_spi, uint8_t *pData, uint32_t WriteAddr, uint32_t
                 return W25Qx_TIMEOUT;
             }
         }
-        /* Reception of the data */
-        usleep(1000000);
 
         /* Update the address and size variables for next page programming */
         current_addr += current_size;
@@ -237,7 +241,7 @@ uint8_t BSP_W25Qx_Erase_Block(int fd_spi, uint32_t Address) {
     BSP_W25Qx_WriteEnable(fd_spi);
 
     /* Send the read ID command */
-    HAL_SPI_Transmit(fd_spi, cmd, 4);
+    HAL_SPI_Transmit_Receive(fd_spi, cmd, 4, NULL, 0);
     /*Deselect the FLASH: Chip Select high */
 
     /* Wait the end of Flash writing */
@@ -264,7 +268,7 @@ uint8_t BSP_W25Qx_Erase_Chip(int fd_spi) {
     BSP_W25Qx_WriteEnable(fd_spi);
 
     /* Send the read ID command */
-    HAL_SPI_Transmit(fd_spi, cmd, 1);
+    HAL_SPI_Transmit_Receive(fd_spi, cmd, 1, NULL, 0);
 
     /* Wait the end of Flash writing */
     while (BSP_W25Qx_GetStatus(fd_spi) != W25Qx_BUSY);

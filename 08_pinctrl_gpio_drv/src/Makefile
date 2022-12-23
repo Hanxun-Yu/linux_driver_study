@@ -17,7 +17,7 @@ all:
 clean:
 	make -C $(KERN_DIR) M=`pwd` modules clean
 	rm -rf modules.order
-	rm -f led_test
+	rm -f test
 
 # 参考内核源码drivers/char/ipmi/Makefile
 # 要想把a.c, b.c编译成ab.ko, 可以这样指定:

@@ -120,8 +120,8 @@ void BSP_W25Qx_Read_ID(int fd_spi, uint8_t *ID) {
 //    HAL_SPI_Receive(fd_spi, ID, 2);
 
     HAL_SPI_Transmit_Receive(fd_spi, cmd, 4, receiveData, 8);
-    ID[0] = receiveData[5];
-    ID[1] = receiveData[6];
+    ID[0] = receiveData[4];
+    ID[1] = receiveData[5];
 }
 
 /**

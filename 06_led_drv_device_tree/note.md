@@ -3,7 +3,7 @@
 ![](pic/20221205155608.png)  
 按照05_led_drv_bus中的分离思想，会造成大量platform_device.c文件，每次改动都需要重新编译  
 设备树dts文件，可以把platform_device.c的内容定义到内核以外      
-我们只需要配置dts文件，编译成dtb，内核接收到dtb之后进行解析，自动构造出platform_device    
+**我们只需要配置dts文件，编译成dtb，内核接收到dtb之后进行解析，自动构造出platform_device**    
 * dtsi文件用于被dts文件#include  
 * dts编译成dtb  
 * dtb也可以被反编译成dts，使用内核中提供的工具  
@@ -18,7 +18,7 @@ arch/arm/boot/dts/stm32mp157c-100ask-512d-lcd-v1.dts
 
 
 #### 设备树内节点与驱动匹配
-![](pic/20221207101606.png)
+![](pic/20221207101606.png)  
 
 
 #### 编译设备树
@@ -31,5 +31,9 @@ reboot
 insmod led_drv.ko  
 insmod led_chip_pdriver.ko  
 查看板子 /sys/devices/platform/xunxun_led@0 下driver是否指向正确位置  
+<br>
+
+#### 驱动对应设备树参考例子
+kernel/Documentation/devicetree/bindings  
 
 

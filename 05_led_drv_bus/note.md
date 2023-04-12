@@ -1,5 +1,5 @@
 ### 总线模型 驱动程序设计思想
-![](pic/20221205154127.png)
+![](pic/20221205154127.png)  
 在04_led_drv_seperate中学习了硬件资源与硬件操作分离的思想
 
 问题点：  
@@ -21,17 +21,17 @@
 <br>
 - - -
 ### 设备树的引入(不是这一章的重点，可忽略)
-![](pic/20221205155608.png)
+![](pic/20221205155608.png)  
 设备树可以把硬件资源定义到内核以外，我们只需要配置dts文件，编译成dtb  
 内核接收到dtb之后进行解析，自动构造出platform_device  
 
 
-![](pic/20221205160103.png)
+![](pic/20221205160103.png)  
 - - -
 
 
 ### 资源与驱动匹配
-![](pic/20221205162106.png)
+![](pic/20221205162106.png)  
 匹配由虚拟总线bus来做，当有新的device或driver注册进来时，则会触发匹配，若成功，会调用驱动的probe函数  
 匹配逻辑写在了platform_match这个函数指针里  
 比较分为3个优先级（若匹配则终止比较）：
@@ -47,6 +47,6 @@
 但现在驱动与资源分离，驱动不知道有多少个引脚了，所以得等device与driver配对后，driver才知道有多少资源  
 然后driver再调用我们原先写好的xxx_dev.c来创建设备节点  
 
-xxx_pdevice.c  # 注册platform_device 资源 （外设相关）
+xxx_pdevice.c  # 注册platform_device 资源 （外设相关）  
 xxx_pdriver.c  # 注册platform_driver 驱动，调用 xxx_drv.c创建设备（芯片相关）   
 xxx_drv.c  # 被xxx_driver.c调用，注册设备节点 open write接口，类似业务层  
